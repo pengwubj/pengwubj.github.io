@@ -1,12 +1,12 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>gpu_cudnn | KIDICT'd Blog</title><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/5.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">gpu_cudnn</h1><a id="logo" href="/.">KIDICT'd Blog</a><p class="description">keep learning</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">gpu_cudnn</h1><div class="post-meta">Jun 6, 2017<script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><div class="post-content"><h2 id="CUDNN-Efficient-Primitives-For-DL"><a href="#CUDNN-Efficient-Primitives-For-DL" class="headerlink" title="CUDNN-Efficient Primitives For DL"></a>CUDNN-Efficient Primitives For DL</h2><p><a href="http://dlsys.cs.washington.edu/pdf/sharan_guest_lecture.pdf" target="_blank" rel="external">Slide</a></p>
 <p>[TOC]</p>
 <h3 id="Year-In-Review"><a href="#Year-In-Review" class="headerlink" title="Year In  Review"></a>Year In  Review</h3><ul>
-<li><img src="/2017/06/06/gpu-cudnn/1496726801968.png" alt="Alt text"></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496726801968.png" alt=""></li>
 </ul>
 <h3 id="Convolutions"><a href="#Convolutions" class="headerlink" title="Convolutions"></a>Convolutions</h3><ul>
 <li><p><strong>Parameter Space</strong> </p>
 <ul>
-<li><img src="/2017/06/06/gpu-cudnn/1496726957590.png" alt="Alt text"></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496726957590.png" alt=""></li>
 </ul>
 </li>
 <li><p><strong>Issue (why is this difficult )</strong></p>
@@ -21,7 +21,7 @@
 <ul>
 <li><p><strong>Convolution as an implicit GEMM</strong> </p>
 <ul>
-<li><img src="/2017/06/06/gpu-cudnn/1496727163845.png" alt="Alt text"></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496727163845.png" alt=""></li>
 <li>benefits <ul>
 <li>Deliver perf in an scalable manner across parameter space </li>
 <li>Leverage a lot of painstakingly optimized code from GEMM </li>
@@ -53,12 +53,12 @@
 <li>aysmptotic complexity same as FFT-convolution, but the transforms are real valued, so total FLOP count smaller </li>
 <li>Cost of smaller FLOP count is reduced numeric accuracy<ul>
 <li><a href="https://openreview.net/pdf?id=H1ZaRZVKg" target="_blank" rel="external">On Improving the Numerical Stability of Winograd Convolutions 2017</a><ul>
-<li><img src="/2017/06/06/gpu-cudnn/1496732160054.png" alt="Alt text"></li>
-<li><img src="/2017/06/06/gpu-cudnn/1496732170564.png" alt="Alt text"></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496732160054.png" alt=""></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496732170564.png" alt=""></li>
 <li>Well chosen polynomial points can mitigate this instability as some values exhibit minimal exponential growth </li>
 <li>Well chosen scalling matrices Sy Sx Sw such that we can mitigate the exponential growth </li>
-<li><img src="/2017/06/06/gpu-cudnn/1496731933575.png" alt="Alt text"></li>
-<li><img src="/2017/06/06/gpu-cudnn/1496731945183.png" alt="Alt text"></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496731933575.png" alt=""></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496731945183.png" alt=""></li>
 </ul>
 </li>
 </ul>
@@ -74,8 +74,8 @@
 <li>Larges batches not always an option for inference</li>
 <li>As batch decreases, GEMM pushed toward memory bound regime<ul>
 <li><a href="http://svail.github.io/persistent_rnns/" target="_blank" rel="external">Persistent RNNs  exploiting reuse of weight matrix</a></li>
-<li><img src="/2017/06/06/gpu-cudnn/1496737294064.png" alt="Alt text"></li>
-<li><img src="/2017/06/06/gpu-cudnn/1496737613360.png" alt="Alt text"></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496737294064.png" alt=""></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496737613360.png" alt=""></li>
 <li>all time steps of a layer done in one kernel </li>
 <li>Global sync inter multi block /grid ; impossible  pre-pascal , tricky on pascal, feature on Volta  </li>
 <li>Reduce the mini-batch size from 64 to 4 provides a 16x savings in activation memory footprint, which enable training deeper network </li>

@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>gpu_cudnn | KIDICT'd Blog</title><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/5.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">gpu_cudnn</h1><a id="logo" href="/.">KIDICT'd Blog</a><p class="description">keep learning</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">gpu_cudnn</h1><div class="post-meta">Jun 6, 2017<script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><div class="post-content"><h2 id="CUDNN-Efficient-Primitives-For-DL"><a href="#CUDNN-Efficient-Primitives-For-DL" class="headerlink" title="CUDNN-Efficient Primitives For DL"></a>CUDNN-Efficient Primitives For DL</h2><p><a href="http://dlsys.cs.washington.edu/pdf/sharan_guest_lecture.pdf" target="_blank" rel="external">Slide</a></p>
+<p>[TOC]</p>
+<h3 id="Year-In-Review"><a href="#Year-In-Review" class="headerlink" title="Year In  Review"></a>Year In  Review</h3><ul>
+<li><img src="/2017/06/06/gpu-cudnn/1496726801968.png" alt="Alt text"></li>
+</ul>
+<h3 id="Convolutions"><a href="#Convolutions" class="headerlink" title="Convolutions"></a>Convolutions</h3><ul>
+<li><p><strong>Parameter Space</strong> </p>
+<ul>
+<li><img src="/2017/06/06/gpu-cudnn/1496726957590.png" alt="Alt text"></li>
+</ul>
+</li>
+<li><p><strong>Issue (why is this difficult )</strong></p>
+<ul>
+<li>large parameter space , highly variables shapes and sizes</li>
+<li>computtation-bound</li>
+<li>user cares about subset , run repeatedly</li>
+<li>GPU arch changes often</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong>Convolution as an implicit GEMM</strong> </p>
+<ul>
+<li><img src="/2017/06/06/gpu-cudnn/1496727163845.png" alt="Alt text"></li>
+<li>benefits <ul>
+<li>Deliver perf in an scalable manner across parameter space </li>
+<li>Leverage a lot of painstakingly optimized code from GEMM </li>
+<li>Basic idea has severs us well, across 4 generations of HW</li>
+<li>Low memory overhead </li>
+</ul>
+</li>
+<li>Costs <ul>
+<li>More memory traffic </li>
+<li>Unfriendly layouts can throttle perf </li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Algorithmically Faster Convolutions (FFT&amp; winograd )</strong></p>
+<ul>
+<li><strong>FFT</strong> <ul>
+<li>Algorithmic improvements long known in signal processing </li>
+<li>Fast convolutional nets with fbff : A GPU Performance Evaluation (2014)<a href="https://arxiv.org/abs/1412.7580" target="_blank" rel="external">paper</a></li>
+<li>For N-length signal in 1D <ul>
+<li>FFTs take O(nlogn) time, point-wise muliply takes (n) time</li>
+<li>Reuse cost of transform across batch and output feature map<br>-</li>
+<li><img src="/2017/06/06/gpu-cudnn/1496727879958.png" alt="FFT"></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Winograd</strong> <ul>
+<li>aysmptotic complexity same as FFT-convolution, but the transforms are real valued, so total FLOP count smaller </li>
+<li>Cost of smaller FLOP count is reduced numeric accuracy<ul>
+<li><a href="https://openreview.net/pdf?id=H1ZaRZVKg" target="_blank" rel="external">On Improving the Numerical Stability of Winograd Convolutions 2017</a><ul>
+<li><img src="/2017/06/06/gpu-cudnn/1496732160054.png" alt="Alt text"></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496732170564.png" alt="Alt text"></li>
+<li>Well chosen polynomial points can mitigate this instability as some values exhibit minimal exponential growth </li>
+<li>Well chosen scalling matrices Sy Sx Sw such that we can mitigate the exponential growth </li>
+<li><img src="/2017/06/06/gpu-cudnn/1496731933575.png" alt="Alt text"></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496731945183.png" alt="Alt text"></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="RNN"><a href="#RNN" class="headerlink" title="RNN"></a>RNN</h3><ul>
+<li>First pass optimatzations <ul>
+<li>increasing preference for small batches,  distributed training</li>
+<li>Larges batches not always an option for inference</li>
+<li>As batch decreases, GEMM pushed toward memory bound regime<ul>
+<li><a href="http://svail.github.io/persistent_rnns/" target="_blank" rel="external">Persistent RNNs  exploiting reuse of weight matrix</a></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496737294064.png" alt="Alt text"></li>
+<li><img src="/2017/06/06/gpu-cudnn/1496737613360.png" alt="Alt text"></li>
+<li>all time steps of a layer done in one kernel </li>
+<li>Global sync inter multi block /grid ; impossible  pre-pascal , tricky on pascal, feature on Volta  </li>
+<li>Reduce the mini-batch size from 64 to 4 provides a 16x savings in activation memory footprint, which enable training deeper network </li>
+<li>Scaling data parallelism to more GPUs<blockquote>
+<p>   <a href="https://devblogs.nvidia.com/parallelforall/cuda-9-features-revealed/" target="_blank" rel="external"><strong>Cooperative Groups</strong></a> Cooperative Groups  in CUDA 9 introduces the ability to define groups of threads explicitly at sub-block and multiblock granularities, and to perform collective operations such as synchronization on them. </p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Coming-Up"><a href="#Coming-Up" class="headerlink" title="Coming Up"></a>Coming Up</h3><ul>
+<li>Volta convolutions and GEMMs - tensor cores and legacy <ul>
+<li>4-5x speedup on convolutions over Pascal, up to 9x on large GEMMs</li>
+<li>Using Fp16 storage and FP32 math; Volta using tensor cores </li>
+</ul>
+</li>
+<li>Faster Softmax BN  Pooling</li>
+<li>Convolution Group</li>
+<li>Faster Deconvolution </li>
+</ul>
+<h3 id="Feature-Challenges-Memory-Memory-Memory"><a href="#Feature-Challenges-Memory-Memory-Memory" class="headerlink" title="Feature Challenges - Memory Memory Memory"></a>Feature Challenges - <strong>Memory Memory Memory</strong></h3><ul>
+<li>convolutions/GEMMs diminishing in percentage of compute time ; <ul>
+<li>no longer low hanging fruit for perf improvement </li>
+</ul>
+</li>
+<li>Batch Norm, for instance , needs 9 passes over memory ( forward + backward)</li>
+</ul>
+<h4 id="Can-we-invent-new-algorithms-keeping-execution-efficiency-in-mind"><a href="#Can-we-invent-new-algorithms-keeping-execution-efficiency-in-mind" class="headerlink" title="Can we invent new algorithms, keeping execution efficiency in mind?"></a><em>Can we invent new algorithms, keeping execution efficiency in mind?</em></h4><h4 id="Can-we-fuse-operations-together-in-a-generic-manner"><a href="#Can-we-fuse-operations-together-in-a-generic-manner" class="headerlink" title="Can we fuse operations together in a generic manner?"></a><em>Can we fuse operations together in a generic manner?</em></h4><h4 id="Can-we-use-sparse-operators"><a href="#Can-we-use-sparse-operators" class="headerlink" title="Can we use sparse operators?"></a><em>Can we use sparse operators?</em></h4></div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="http://yoursite.com/2017/06/06/gpu-cudnn/" data-id="cj3lo81xx00033zs6g14drdi0" class="article-share-link">分享到</a><div class="tags"></div><div class="post-nav"><a href="/2017/05/26/DLS-L1-2/" class="next">DLS-L1-2</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/RNN/" style="font-size: 15px;">RNN</a> <a href="/tags/GPU/" style="font-size: 15px;">GPU</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/06/06/gpu-cudnn/">gpu_cudnn</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/26/DLS-L1-2/">DLS-L1-2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/26/DLS-L1/">DLS_L1-RNN</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/04/cs343-GPU-Lesson-1/">cs343 GPU Lesson 1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/04/hello-world/">Hello World</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">© <a href="/." rel="nofollow">KIDICT'd Blog.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="/css/jquery.fancybox.css?v=0.0.0"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
